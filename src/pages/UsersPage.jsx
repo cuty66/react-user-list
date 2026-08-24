@@ -6,6 +6,11 @@ function UsersPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [search, setSearch] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const postPerPage = 3;
+    const startIndex = (currentPage - 1) * postPerPage;
+    const endIndex = startIndex + postPerPage;
+
     useEffect(()=>{
       setIsLoading(true);
       fetch("https://jsonplaceholder.typicode.com/users")
@@ -24,9 +29,31 @@ function UsersPage() {
       .finally(() => {
         setIsLoading(false);
       });
-    }, [])
-   
+    }, []);
+
     const filteredUsers = user.filter(m => m.name.toLowerCase().includes(search.toLowerCase().trim()) );
+    const currentUsers = filteredUsers.slice(startIndex, endIndex);
+
+    const totalPage = Math.ceil(filteredUsers.length / postPerPage);
+    
+
+    useEffect(()=>{
+        setCurrentPage(1);
+    }, [search]);
+
+    function handlePagination(page) {
+        setCurrentPage(page);
+    }
+
+    function handleNextPage() {
+        if(currentPage >= totalPage) return;
+        setCurrentPage(currentPage+1);
+    }
+    function handlePrevPage() {
+        if(currentPage === 1) return;
+        setCurrentPage(currentPage-1);
+    }
+    const paginationArr = Array.from({ length: totalPage }, (_, index) => index + 1);
 
   return (
     <section className='user-wrapper'>
@@ -44,7 +71,32 @@ function UsersPage() {
             value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
         </div>
-        <UserList userLists = {filteredUsers} />
+
+        <UserList userLists = {currentUsers} />
+
+        {paginationArr.length > 0 && ( 
+            <ul className='pagination flex'>
+                {paginationArr.length > 1 && (
+                    <li>
+                        <button type='button' onClick={handleNextPage} disabled={currentPage === totalPage }>Next</button>
+                    </li> 
+                )}
+                {paginationArr.map(page => 
+                    (
+                    <li key={page}>
+                        <button type='button' 
+                        onClick={() => handlePagination(page)}
+                        className={currentPage === page ? 'active' : ''}
+                        >{page}</button></li>
+                    )
+                )}
+                {paginationArr.length > 1 && (
+                    <li>
+                        <button type='button' onClick={handlePrevPage} disabled={currentPage===1}>Prev</button>
+                    </li>
+                )}
+            </ul>
+        )}
 
         {user.length > 0 && filteredUsers.length === 0 && (
           <p className='text-center'>Search for {search.trim()}: No users found.</p>

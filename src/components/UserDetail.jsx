@@ -12,9 +12,15 @@ export default function UserDetail() {
         setIsLoading(true);
         fetch(`https://jsonplaceholder.typicode.com/users/${id}`)
         .then(response => {
-            if(!response.ok) {
-                throw new Error("Something went wrong");
+
+            if( response.status === 404) {
+                throw new Error(`${response.status} : User NOt Found`)
             }
+            
+            if(!response.ok) {
+                throw new Error("User not found");
+            }
+            
             return response.json();
         })
         .then(json => {
