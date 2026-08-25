@@ -1,46 +1,26 @@
 
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import useFetch from "../hooks/useFetch";
 
 export default function UserDetail() {
     const {id} = useParams();
-    const [detail, setDetail] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
-    useEffect(()=>{
-        setIsLoading(true);
-        fetch(`https://jsonplaceholder.typicode.com/users/${id}`)
-        .then(response => {
+    const {isLoading, error, data} = useFetch(`https://jsonplaceholder.typicode.com/users/${id}`);
+    const detail = data ?? {};
+    const navigate = useNavigate();
 
-            if( response.status === 404) {
-                throw new Error(`${response.status} : User NOt Found`)
-            }
-            
-            if(!response.ok) {
-                throw new Error("User not found");
-            }
-            
-            return response.json();
-        })
-        .then(json => {
-            setDetail(json);
-        })
-        .catch(error => {
-            setError(error.message)
-        })
-        .finally(()=>{
-            setIsLoading(false)
-        })
-    },[id]);
-
+    function handleBack() {
+        navigate(-1);
+    }
+    function handleBackUsers() {
+        navigate("/");
+    }
     return (
         <section className="user-detail">
             <div className="container">
                 { isLoading && (<p className='text-center'>users is loading </p>)}
-                { error && (<p className='text-center'>{error}</p>)}
-                <Link to="/">Back</Link>
-                {detail && ( 
+                { error && (<div><p className='text-center'>{error}</p><button onClick={handleBackUsers}>Back To Users</button></div>)}
+                { !error && !isLoading && ( <button onClick={handleBack}>Back</button>) }
+                {Object.keys(detail).length > 0 && ( 
                     <article>
                         <h1 className="page-title">{detail.name}</h1>
                         <ul>
