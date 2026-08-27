@@ -4,19 +4,19 @@ export default function useFetch(url) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [data, setData] = useState(null);
-    const controllerRef = useRef(new AbortController());
+    const controllerRef = useRef();
     
     function refetch(){
         controllerRef.current.abort();
-        controllerRef.current = new AbortController();
-        fetchData(url);
+        fetchData();
     }
 
-    function fetchData(inp) {
+    function fetchData() {
+        controllerRef.current = new AbortController();
         setError("");
         setData(null);
         setIsLoading(true);
-        fetch(inp, {signal: controllerRef.current.signal})
+        fetch(url, {signal: controllerRef.current.signal})
         .then(response => {
             if( response.status === 404) {
                 throw new Error(`${response.status} : Resource NOt Found`)
@@ -41,9 +41,7 @@ export default function useFetch(url) {
         });
     }
     useEffect(()=>{
-        controllerRef.current = new AbortController();
-        fetchData(url);
-
+        fetchData();
         return() => {
             controllerRef.current.abort();
         };
