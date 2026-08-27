@@ -4,7 +4,7 @@ import useFetch from "../hooks/useFetch";
 
 export default function UserDetail() {
     const {id} = useParams();
-    const {isLoading, error, data, checkRetry} = useFetch(`https://jsonplaceholder.typicode.com/users/${id}`);
+    const {isLoading, error, data, refetch} = useFetch(`https://jsonplaceholder.typicode.com/users/${id}`);
     const detail = data ?? {};
     const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ export default function UserDetail() {
                         <p className='text-center'>{error}</p>
                         <div className="flex">
                             <button onClick={handleBackUsers}>Back To Users</button>
-                            <button onClick={checkRetry}>Retry</button>
+                            <button onClick={refetch}>Retry</button>
                         </div>
                     </div>
                 )}

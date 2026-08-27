@@ -1,19 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function useFetch(url) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [data, setData] = useState(null);
-    const [retry, setRetry] = useState(0);
-    function checkRetry(){
-        setRetry(prev => prev + 1);
+    const controllerRef = useRef(new AbortController());
+    
+    function refetch(){
+        controllerRef.current.abort();
+        controllerRef.current = new AbortController();
+        fetchData(url);
     }
-    useEffect(()=>{
-        const abortController = new AbortController();
+
+    function fetchData(inp) {
         setError("");
         setData(null);
         setIsLoading(true);
-        fetch(url, {signal: abortController.signal})
+        fetch(inp, {signal: controllerRef.current.signal})
         .then(response => {
             if( response.status === 404) {
                 throw new Error(`${response.status} : Resource NOt Found`)
@@ -36,19 +39,22 @@ export default function useFetch(url) {
         .finally(() => {
             setIsLoading(false);
         });
-
+    }
+    useEffect(()=>{
+        controllerRef.current = new AbortController();
+        fetchData(url);
 
         return() => {
-            abortController.abort();
+            controllerRef.current.abort();
         };
             
-    }, [url, retry]);
+    }, [url]);
 
 
     return {
         data,
         isLoading,
         error,
-        checkRetry,
+        refetch,
     }
 }
