@@ -4,16 +4,10 @@ export default function useFetch(url) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [data, setData] = useState(null);
-    // function delay(ms, signal) {
-    //     return new Promise((resolve, reject) => {
-    //         const timer = setTimeout(resolve, ms);
-
-    //         signal.addEventListener("abort", () => {
-    //             clearTimeout(timer);
-    //             reject(new DOMException("Aborted", "AbortError"));
-    //         });
-    //     });
-    // }
+    const [retry, setRetry] = useState(0);
+    function checkRetry(){
+        setRetry(prev => prev + 1);
+    }
     useEffect(()=>{
         const abortController = new AbortController();
         setError("");
@@ -48,12 +42,13 @@ export default function useFetch(url) {
             abortController.abort();
         };
             
-    }, [url]);
+    }, [url, retry]);
 
 
     return {
         data,
         isLoading,
-        error
+        error,
+        checkRetry,
     }
 }

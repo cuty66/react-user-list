@@ -4,7 +4,7 @@ import useFetch from "../hooks/useFetch";
 
 export default function UserDetail() {
     const {id} = useParams();
-    const {isLoading, error, data} = useFetch(`https://jsonplaceholder.typicode.com/users/${id}`);
+    const {isLoading, error, data, checkRetry} = useFetch(`https://jsonplaceholder.typicode.com/users/${id}`);
     const detail = data ?? {};
     const navigate = useNavigate();
 
@@ -18,7 +18,15 @@ export default function UserDetail() {
         <section className="user-detail">
             <div className="container">
                 { isLoading && (<p className='text-center'>users is loading </p>)}
-                { error && (<div><p className='text-center'>{error}</p><button onClick={handleBackUsers}>Back To Users</button></div>)}
+                { error && (
+                    <div>
+                        <p className='text-center'>{error}</p>
+                        <div className="flex">
+                            <button onClick={handleBackUsers}>Back To Users</button>
+                            <button onClick={checkRetry}>Retry</button>
+                        </div>
+                    </div>
+                )}
                 { !error && !isLoading && ( <button onClick={handleBack}>Back</button>) }
                 {Object.keys(detail).length > 0 && ( 
                     <article>
