@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import UserList from '../components/UserList';
 import useFetch from '../hooks/useFetch';
+import useDebounce from "../hooks/useDebounce";
 
 function UsersPage() {
-    // const [user, setUser] = useState([]);
-    // const [isLoading, setIsLoading] = useState(false);
-    // const [error, setError] = useState("");
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const postPerPage = 3;
@@ -13,26 +11,8 @@ function UsersPage() {
     const endIndex = startIndex + postPerPage;
     const {isLoading, error, data} = useFetch("https://jsonplaceholder.typicode.com/users");
     const users = data ?? [];
-    // useEffect(()=>{
-    //   setIsLoading(true);
-    //   fetch("https://jsonplaceholder.typicode.com/users")
-    //   .then(response => {
-    //     if(!response.ok) {
-    //       throw new Error("Something went wrong !!!");
-    //     }
-    //     return response.json();
-    //   })
-    //   .then(json  => {
-    //     setUser(json);
-    //   })
-    //   .catch(error => {
-    //     setError(error.message);
-    //   })
-    //   .finally(() => {
-    //     setIsLoading(false);
-    //   });
-    // }, []);
-    const filteredUsers = users.filter(m => m.name.toLowerCase().includes(search.toLowerCase().trim()) );
+    const { debouncedValue } = useDebounce(search, 500);
+    const filteredUsers = users.filter(m => m.name.toLowerCase().includes(debouncedValue.toLowerCase().trim()) );
     const currentUsers = filteredUsers.slice(startIndex, endIndex);
 
     const totalPage = Math.ceil(filteredUsers.length / postPerPage);
@@ -40,7 +20,8 @@ function UsersPage() {
 
     useEffect(()=>{
         setCurrentPage(1);
-    }, [search]);
+    }, [debouncedValue]);
+
 
     function handlePagination(page) {
         setCurrentPage(page);
