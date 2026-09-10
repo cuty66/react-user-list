@@ -1,11 +1,38 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useReducer } from "react";
 
 export default function useFetch(url) {
+    const initialState = {
+        data: null,
+        isLoading: false,
+        error: null,
+    }
+    function reducer(state, action) {
+        switch(action.type) {
+            case "FETCH_START":
+                return {
+                    ...state,
+                    data: null,
+                    isLoading: true,
+                    error: null,
+                };
+            case "FETCH_SUCCESS": 
+                return {
+                    data: action.payload,
+                    isLoading: false,
+                    error: null,
+                };
+            case "FETCH_ERROR":
+                return {
+                    ...state,
+                    error: action.payload,
+                    isLoading: false,
+                };
+            default:
+                return state;
+        }
+    }
+    const [state, dispatch] = useReducer(reducer, initialState);
     const requestRef = useRef(0);
-
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [data, setData] = useState(null);
     const controllerRef = useRef();
 
     const timerRef = useRef();
@@ -18,9 +45,7 @@ export default function useFetch(url) {
             clearTimeout(timerRef.current);
         }
         const controller = new AbortController();
-        setError("");
-        setData(null);
-        setIsLoading(true);
+        dispatch({type: "FETCH_START"})
         const requestId = ++requestRef.current;
         controllerRef.current = controller;
         timerRef.current = setTimeout(() => {
@@ -36,20 +61,22 @@ export default function useFetch(url) {
             })
             .then(json  => {
                 if (requestId !== requestRef.current) return;
-                setData(json);
+                dispatch({
+                    type: "FETCH_SUCCESS",
+                    payload: json,
+                })
             })
             .catch(error => {
                 if (requestId !== requestRef.current) return;
                 if(error.name==='AbortError') {
                     console.log('Fetch aborted');
                 } else {
-                    setError(error.message);
+                    dispatch({
+                        type: "FETCH_ERROR",
+                        payload: error.message,
+                    })
                 }
             })
-            .finally(() => {
-                if (requestId !== requestRef.current) return;
-                setIsLoading(false);
-            });
         }, 1000);
     },[url]);
         
@@ -68,9 +95,7 @@ export default function useFetch(url) {
 
 
     return {
-        data,
-        isLoading,
-        error,
+        ...state,
         refetch: fetchData,
     }
 }
