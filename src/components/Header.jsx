@@ -3,8 +3,10 @@ import { UserContext } from "../context/UserContext"
 import { ThemeContext } from "../context/ThemeContext";
 
 export function Header() {
-    const {user, setUser} = useContext(UserContext);
+    const {state, login, logout} = useContext(UserContext);
+    const { user } = state;
     const {theme, setTheme} = useContext(ThemeContext);
+
     return(
         <header>
             <div className="container">
@@ -14,10 +16,13 @@ export function Header() {
                         { user ? (
                         <p className="flex">
                             {user.name}
-                            <button onClick={() => setUser(null)}>Logout</button>
+                            <button onClick={logout}>Logout</button>
                         </p>
                         ) : (
-                            <button>Login</button>
+                            <button onClick={() => login(
+                                {name: "Mina",
+                                email: "mina@example.com"}
+                                )}>Login</button>
                         )}
                         {theme} : <button onClick={() => setTheme(theme==='light' ? 'dark' : 'light')}>Change Theme</button>
                     </div>
