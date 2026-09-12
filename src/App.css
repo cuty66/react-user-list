@@ -35,3 +35,16 @@
   cursor: pointer;
   transition: all 0.3s;
 }
+.header-wrapper {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gap-3 {
+  gap: 12px;
+}
+
+.dark {
+  background-color: #333;
+  color: #fff;
+}

@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-
 export default function UserCard({name, website, email, id}) {
     return (
         <div className="user-card">
