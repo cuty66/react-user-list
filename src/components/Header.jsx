@@ -1,11 +1,10 @@
-import { useContext } from "react"
-import { UserContext } from "../context/UserContext"
-import { ThemeContext } from "../context/ThemeContext";
+import { useUser } from "../context/UserContext"
+import { useTheme } from "../context/ThemeContext";
 
 export function Header() {
-    const {state, login, logout} = useContext(UserContext);
+    const {state, login, logout} = useUser();
     const { user } = state;
-    const {theme, setTheme} = useContext(ThemeContext);
+    const {theme, setTheme} = useTheme();
 
     return(
         <header>

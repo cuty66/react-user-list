@@ -1,6 +1,10 @@
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useEffect, useReducer, useContext } from "react";
 
 export const UserContext = createContext();
+
+export function useUser(){
+    return useContext(UserContext);
+}
 
 const storedUser = localStorage.getItem('user');
 const initialState = {
