@@ -7,6 +7,7 @@ import NotFound from './pages/NotFound';
 import { Header } from './components/Header';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
+import GuestRoute from './components/GuestRoute';
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
         <Route path="/users/:id" element={<ProtectedRoute><UserDetail /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
 
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
       </Routes>
     </>
   )
