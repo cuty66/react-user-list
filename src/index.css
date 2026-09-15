@@ -91,12 +91,13 @@ a:hover {
   color: var(--accent);
 }
 
-input[type="text"] {
+input[type="text"], input[type="password"] {
   padding: 10px 15px;
   border-radius: 6px;
   border: 1px solid var(--accent-border);
   outline: none;
   width: 100%;
+  margin-bottom: 16px;
 }
 
 .text-center {

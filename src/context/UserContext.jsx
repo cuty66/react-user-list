@@ -10,13 +10,19 @@ export function useUser(){
     return context;
 }
 
-const storedUser = localStorage.getItem('user');
+const storedUser = localStorage.getItem('auth');
+const parsedAuth = storedUser ? JSON.parse(storedUser) : null;
+
+console.log(storedUser)
 const initialState = {
-    user: storedUser ? JSON.parse(storedUser) : null,
+    user: parsedAuth?.user || null,
+    accessToken: parsedAuth?.accessToken || null,
+    refreshToken: parsedAuth?.refreshToken || null,
     loading: false,
     error: null,
 }
 function reducer(state, action) {
+    
     switch(action.type) {
         
         case "LOGIN_START": 
@@ -26,9 +32,12 @@ function reducer(state, action) {
                 error: null,
             };
         case "LOGIN_SUCCESS": 
+            const {accessToken, refreshToken, ...user } = action.payload;
             return {
                 ...state,
-                user: action.payload,
+                user,
+                accessToken,
+                refreshToken,
                 loading: false,
                 error: null,
             };
@@ -42,6 +51,8 @@ function reducer(state, action) {
             return {
                 ...state,
                 user: null,
+                accessToken: null,
+                refreshToken: null,
                 loading: false,
                 error: null,
         };
@@ -55,18 +66,29 @@ export function UserProvider({children}) {
     const isAuthenticated = Boolean(state.user);
     useEffect(()=>{
         if(state.user) {
-            localStorage.setItem('user', JSON.stringify(state.user))
+            localStorage.setItem('auth', JSON.stringify({
+                user: state.user,
+                accessToken: state.accessToken,
+                refreshToken: state.refreshToken
+            }))
         } else {
-            localStorage.removeItem('user')
+            localStorage.removeItem('auth')
         }
     }, [state.user])
 
-    const login = useCallback(async () => {
+    const login = useCallback(async (form) => {
         dispatch({
             type: "LOGIN_START",
         });
         try {
-            const response = await fetch('https://jsonplaceholder.typicode.com/users/1');
+            // const response = await fetch('https://jsonplaceholder.typicode.com/users/1');
+            const response = await fetch('https://dummyjson.com/auth/login', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(form)
+            })
             if(!response.ok) {
                 throw new Error("Request failed");
             }
@@ -82,6 +104,7 @@ export function UserProvider({children}) {
                 type: "LOGIN_ERROR",
                 payload: error.message,
             });
+            return false;
         }
     }, []);
 
