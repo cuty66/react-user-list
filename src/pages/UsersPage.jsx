@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import UserList from '../components/UserList';
 import useFetch from '../hooks/useFetch';
 import useDebounce from "../hooks/useDebounce";
+import { useUser } from "../context/UserContext";
 
 function UsersPage() {
     const [search, setSearch] = useState("");
@@ -17,7 +18,6 @@ function UsersPage() {
 
     const totalPage = Math.ceil(filteredUsers.length / postPerPage);
     
-
     useEffect(()=>{
         setCurrentPage(1);
     }, [debouncedValue]);
@@ -36,7 +36,7 @@ function UsersPage() {
         setCurrentPage(currentPage-1);
     }
     const paginationArr = Array.from({ length: totalPage }, (_, index) => index + 1);
-
+    const { getMe } = useUser();
   return (
     <section className='user-wrapper'>
       <div className="container">
@@ -53,6 +53,10 @@ function UsersPage() {
             value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
         </div>
+        
+        <button onClick={getMe}>
+            Get Me
+        </button>
 
         <UserList userLists = {currentUsers} />
 
